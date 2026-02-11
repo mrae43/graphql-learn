@@ -25,6 +25,11 @@ const resolvers = {
 
 	Mutation: {
 		addBook: async (root, args) => {
+			if (!context.currentUser) {
+				throw new GraphQLError('Not authenticated', {
+					extensions: { code: 'UNAUTHENTICATED' },
+				});
+			}
 			const book = new Book({ ...args });
 
 			try {
@@ -41,6 +46,12 @@ const resolvers = {
 			return book;
 		},
 		editAuthor: async (root, args) => {
+			if (!context.currentUser) {
+				throw new GraphQLError('Not authenticated', {
+					extensions: { code: 'UNAUTHENTICATED' },
+				});
+			}
+
 			const author = await Author.findOne({ name: args.name });
 
 			if (!author) return null;
@@ -62,7 +73,10 @@ const resolvers = {
 		},
 
 		createUser: async (root, args) => {
-			const user = new User({ username: args.username });
+			const user = new User({
+				username: args.username,
+				favoriteGenre: args.favoriteGenre,
+			});
 
 			try {
 				return user.save();

@@ -15,6 +15,9 @@ const resolvers = {
 		allAuthors: async () => {
 			return Author.find({});
 		},
+		me: (root, args, context) => {
+			return context.currentUser;
+		},
 	},
 
 	Author: {
@@ -24,8 +27,9 @@ const resolvers = {
 	},
 
 	Mutation: {
-		addBook: async (root, args) => {
-			if (!context.currentUser) {
+		addBook: async (root, args, context) => {
+			const currentUser = context.currentUser;
+			if (!currentUser) {
 				throw new GraphQLError('Not authenticated', {
 					extensions: { code: 'UNAUTHENTICATED' },
 				});
@@ -45,8 +49,9 @@ const resolvers = {
 			}
 			return book;
 		},
-		editAuthor: async (root, args) => {
-			if (!context.currentUser) {
+		editAuthor: async (root, args, context) => {
+			const currentUser = context.currentUser;
+			if (!currentUser) {
 				throw new GraphQLError('Not authenticated', {
 					extensions: { code: 'UNAUTHENTICATED' },
 				});
@@ -60,6 +65,8 @@ const resolvers = {
 
 			try {
 				await author.save();
+				currentUser.favoriteGenre = currentUser.favoriteGenre.concat(author);
+				await currentUser.save();
 			} catch (error) {
 				throw new GraphQLError('Saving author failed', {
 					extensions: {

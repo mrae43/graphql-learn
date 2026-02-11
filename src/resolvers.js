@@ -7,8 +7,12 @@ const User = require('./models/User');
 
 const resolvers = {
 	Query: {
-		bookCount: async () => Book.collection.countDocuments(),
-		authorCount: async () => Author.collection.countDocuments(),
+		bookCount: async (root) => {
+			return Book.collection.countDocuments({ author: root._id });
+		},
+		authorCount: async (root) => {
+			return Author.collection.countDocuments({ author: root._id });
+		},
 		allBooks: async (root, args) => {
 			return Book.find({});
 		},
@@ -21,9 +25,9 @@ const resolvers = {
 	},
 
 	Author: {
-		// bookCount: (root) => {
-		// 	return books.filter((book) => book.author === root.name).length;
-		// },
+		bookCount: async (root) => {
+			return Book.countDocuments({ author: root._id });
+		},
 	},
 
 	Mutation: {
@@ -34,7 +38,30 @@ const resolvers = {
 					extensions: { code: 'UNAUTHENTICATED' },
 				});
 			}
-			const book = new Book({ ...args });
+
+			let author = await Author.findOne({ name: args.author });
+
+			if (!author) {
+				author = new Author({ name: args.name });
+				try {
+					await author.save();
+				} catch (error) {
+					throw new GraphQLError('Saving author failed', {
+						extensions: {
+							code: 'BAD_USER_INPUT',
+							invalidArgs: [args.author],
+							error,
+						},
+					});
+				}
+			}
+
+			const book = new Book({
+				title: args.title,
+				published: args.published,
+				genres: args.genres,
+				author: author._id,
+			});
 
 			try {
 				await book.save();
@@ -47,7 +74,7 @@ const resolvers = {
 					},
 				});
 			}
-			return book;
+			return book.populate('author');
 		},
 		editAuthor: async (root, args, context) => {
 			const currentUser = context.currentUser;

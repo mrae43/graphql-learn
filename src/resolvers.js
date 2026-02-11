@@ -1,3 +1,5 @@
+const { GraphQLError } = require('graphql');
+
 const Author = require('./models/Author');
 const Book = require('./models/Book');
 
@@ -22,18 +24,39 @@ const resolvers = {
 	Mutation: {
 		addBook: async (root, args) => {
 			const book = new Book({ ...args });
-			await book.save();
+
+			try {
+				await book.save();
+			} catch (error) {
+				throw new GraphQLError('Saving book failed', {
+					extensions: {
+						code: 'BAD_USER_INPUT',
+						invalidArgs: [args.title, args.author],
+						error,
+					},
+				});
+			}
 			return book;
 		},
-		editAuthor: (root, args) => {
-			// const author = Author.find((author) => author.name === args.name);
-			// if (!author) return null;
-			// const updatedData = { ...author, born: args.setBornTo };
-			// Author = Author.map((author) =>
-			// 	author.name === args.name ? updatedData : author,
-			// );
-			// return updatedData;
-			return null;
+		editAuthor: async (root, args) => {
+			const author = await Author.findOne({ name: args.name });
+
+			if (!author) return null;
+
+			author.born = args.setBornTo;
+
+			try {
+				await author.save();
+			} catch (error) {
+				throw new GraphQLError('Saving author failed', {
+					extensions: {
+						code: 'BAD_USER_INPUT',
+						invalidArgs: [args.name, args.born],
+						error,
+					},
+				});
+			}
+			return author;
 		},
 	},
 };

@@ -1,6 +1,7 @@
 const { ApolloServer } = require('@apollo/server');
 const { startStandaloneServer } = require('@apollo/server/standalone');
 const { v1: uuid } = require('uuid');
+const typeDefs  = require('./src/schema');
 
 let authors = [
 	{
@@ -26,8 +27,11 @@ let authors = [
 		name: 'Sandi Metz', // birthyear not known
 		id: 'afa5b6f3-344d-11e9-a414-719c6709cf3e',
 	},
+	{
+		name: 'Reijo Maki',
+		id: 'afa5b6f4-344d-11e9-a414-719c6709cf3e',
+	},
 ];
-
 /*
  * English:
  * It might make more sense to associate a book with its author by storing the author's id in the context of the book instead of the author's name
@@ -86,45 +90,6 @@ let books = [
 		genres: ['classic', 'revolution'],
 	},
 ];
-
-/*
-  you can remove the placeholder query once your first one has been implemented 
-*/
-
-const typeDefs =
-	/* GraphQL */
-	`
-		type Book {
-			title: String!
-			author: String!
-			published: Int!
-			genres: [String!]!
-		}
-
-		type Author {
-			name: String!
-			born: Int
-			bookCount: Int!
-		}
-
-		type Query {
-			bookCount: Int!
-			authorCount: Int!
-			allBooks(author: String, genre: String): [Book!]!
-			allAuthors: [Author!]!
-		}
-
-		type Mutation {
-			addBook(
-				title: String!
-				author: String!
-				published: Int!
-				genres: [String!]!
-			): Book
-
-			editAuthor(name: String!, setBornTo: Int!): Author
-		}
-	`;
 
 const resolvers = {
 	Query: {

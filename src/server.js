@@ -12,7 +12,7 @@ const getUserFromAuthHeader = async (auth) => {
 	}
 
 	const decodedToken = jwt.verify(auth.substring(7), process.env.JWT_SECRET);
-	return User.findById(decodedToken.id).populate('favoriteGenre');
+	return User.findById(decodedToken.id);
 };
 
 const startServer = (port) => {

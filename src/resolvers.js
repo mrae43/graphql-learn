@@ -14,7 +14,8 @@ const resolvers = {
 			return Author.collection.countDocuments({ author: root._id });
 		},
 		allBooks: async (root, args) => {
-			return Book.find({}).populate('author');
+			const filter = args.genres ? { genre: args.genre } : {};
+			return Book.find(filter).populate('author');
 		},
 		allAuthors: async () => {
 			return Author.find({});

@@ -14,7 +14,7 @@ const resolvers = {
 			return Author.collection.countDocuments({ author: root._id });
 		},
 		allBooks: async (root, args) => {
-			return Book.find({});
+			return Book.find({}).populate('author');
 		},
 		allAuthors: async () => {
 			return Author.find({});
@@ -42,7 +42,7 @@ const resolvers = {
 			let author = await Author.findOne({ name: args.author });
 
 			if (!author) {
-				author = new Author({ name: args.name });
+				author = new Author({ name: args.author });
 				try {
 					await author.save();
 				} catch (error) {

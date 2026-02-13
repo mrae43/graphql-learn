@@ -78,8 +78,9 @@ const resolvers = {
 					},
 				});
 			}
+			const populatedBook = await book.populate('author');
 			pubsub.publish('BOOK_ADDED', { bookAdded: book });
-			return book.populate('author');
+			return populatedBook;
 		},
 		editAuthor: async (root, args, context) => {
 			const currentUser = context.currentUser;

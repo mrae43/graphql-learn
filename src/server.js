@@ -61,8 +61,8 @@ const startServer = async (port) => {
 		expressMiddleware(server, {
 			context: async ({ req }) => {
 				const auth = req.headers.authorization;
-				const currrentUser = getUserFromAuthHeader(auth);
-				return { currrentUser };
+				const currentUser = await getUserFromAuthHeader(auth);
+				return { currentUser };
 			},
 		}),
 	);

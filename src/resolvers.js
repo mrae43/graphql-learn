@@ -17,8 +17,11 @@ const resolvers = {
 			return Author.collection.countDocuments({ author: root._id });
 		},
 		allBooks: async (root, args) => {
-			const filter = args.genres ? { genre: args.genre } : {};
-			return Book.find(filter).populate('author');
+			const { genre } = args;
+			if (!genre) {
+				return Book.find({}).populate('author');
+			}
+			return Book.find({ genres: genre }).populate('author');
 		},
 		allAuthors: async () => {
 			return Author.find({});
@@ -79,7 +82,7 @@ const resolvers = {
 				});
 			}
 			const populatedBook = await book.populate('author');
-			pubsub.publish('BOOK_ADDED', { bookAdded: book });
+			pubsub.publish('BOOK_ADDED', { bookAdded: populatedBook });
 			return populatedBook;
 		},
 		editAuthor: async (root, args, context) => {

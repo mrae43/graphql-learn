@@ -9,7 +9,7 @@ const { makeExecutableSchema } = require('@graphql-tools/schema');
 const http = require('http');
 const { WebSocketServer } = require('ws');
 const { useServer } = require('graphql-ws/use/ws');
-const { booksCountLoader, authorLoader } = require('./loaders');
+const { booksCountLoader, authorLoader, booksByGenreLoader } = require('./loaders');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 
@@ -68,6 +68,7 @@ const startServer = async (port) => {
 					loaders: {
 						booksCountLoader,
 						authorLoader,
+						booksByGenreLoader
 					},
 				};
 			},

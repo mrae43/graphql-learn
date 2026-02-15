@@ -1,10 +1,10 @@
-import DataLoader from 'dataloader';
-import _ from 'lodash';
-import Book from './models/Book';
-import Author from './models/Author';
+const DataLoader = require('dataloader');
+const _ = require('lodash');
+const Book = require('./models/Book');
+const Author = require('./models/Author');
 
-export const booksCountLoader = new DataLoader(async (authorIds) => {
-	const counts = Book.collection.aggregate([
+const booksCountLoader = new DataLoader(async (authorIds) => {
+	const counts = await Book.aggregate([
 		{ $match: { author: { $in: authorIds } } },
 		{ $group: { _id: '$author', count: { $sum: 1 } } },
 	]);
@@ -12,8 +12,13 @@ export const booksCountLoader = new DataLoader(async (authorIds) => {
 	return authorIds.map((authorId) => countsByAuthorId[authorId]?.count || 0);
 });
 
-export const authorLoader = new DataLoader(async (authorIds) => {
+const authorLoader = new DataLoader(async (authorIds) => {
 	const authors = await Author.find({ _id: { $in: authorIds } });
 	const authorsById = _.keyBy(authors, '_id');
 	return authorIds.map((authorId) => authorsById[authorId] || null);
 });
+
+module.exports = {
+	booksCountLoader,
+	authorLoader,
+};

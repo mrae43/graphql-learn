@@ -10,9 +10,6 @@ const pubsub = new PubSub();
 
 const resolvers = {
 	Query: {
-		bookCount: async (root) => {
-			return Book.collection.countDocuments({ author: root._id });
-		},
 		authorCount: async (root) => {
 			return Author.collection.countDocuments({ author: root._id });
 		},
@@ -32,8 +29,8 @@ const resolvers = {
 	},
 
 	Author: {
-		bookCount: async (root) => {
-			return Book.countDocuments({ author: root._id });
+		bookCount: async (root, args, context) => {
+			return context.loaders.booksCountLoader.load(root._id);
 		},
 	},
 

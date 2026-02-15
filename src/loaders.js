@@ -17,3 +17,21 @@ export const authorLoader = new DataLoader(async (authorIds) => {
 	const authorsById = _.keyBy(authors, '_id');
 	return authorIds.map((authorId) => authorsById[authorId] || null);
 });
+
+export const booksByGenreLoader = new DataLoader(async (genres) => {
+	const books = await Book.find({ genres: { $in: genres } });
+	const booksByGenre = {};
+
+	for (const genre of genres) {
+		booksByGenre[genre] = [];
+	}
+
+	for (const book of books) {
+		for (const genre of book.genres) {
+			if (booksByGenre.hasOwnProperty(genre)) {
+				booksByGenre[genre].push(book);
+			}
+		}
+	}
+	return genres.map((genre) => booksByGenre[genre] || []);
+});

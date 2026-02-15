@@ -34,12 +34,6 @@ const resolvers = {
 		},
 	},
 
-	Book: {
-		author: (root, args, context) => {
-			return context.loaders.authorLoader.load(root.author);
-		},
-	},
-
 	Mutation: {
 		addBook: async (root, args, context) => {
 			const currentUser = context.currentUser;
